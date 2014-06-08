@@ -18,8 +18,6 @@ package org.cyrilix.gerrit.plugins.redmine;
 import java.io.IOException;
 
 import org.eclipse.jgit.errors.ConfigInvalidException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gerrit.extensions.annotations.PluginName;
 import com.google.gerrit.pgm.init.AllProjectsConfig;
@@ -30,38 +28,85 @@ import com.google.gerrit.pgm.util.ConsoleUI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.googlesource.gerrit.plugins.hooks.its.InitIts;
+import com.googlesource.gerrit.plugins.hooks.validation.ItsAssociationPolicy;
+import com.taskadapter.redmineapi.RedmineException;
+import com.taskadapter.redmineapi.RedmineManager;
 
 /**
+ * Module initialisation for redmine-its plugin
+ * 
  * @author Cyrille Nofficial
  * 
  */
 @Singleton
-class InitRedmine extends InitIts {
-    private static final Logger LOGGER = LoggerFactory.getLogger(InitRedmine.class);
+class InitBugzilla extends InitIts {
+  private final String pluginName;
+  private final Section.Factory sections;
+  private Section redmine;
+  private Section redmineComment;
+  private String redmineUrl;
+  private String redmineApiKey;
 
-    private final String pluginName;
-    private final Section.Factory sections;
-    private final InitFlags flags;
+  @Inject
+  InitBugzilla(@PluginName String pluginName, ConsoleUI ui,
+      Section.Factory sections, AllProjectsConfig allProjectsConfig,
+      AllProjectsNameOnInitProvider allProjects, InitFlags flags) {
+    super(pluginName, "Redmine", ui, allProjectsConfig, allProjects);
+    this.pluginName = pluginName;
+    this.sections = sections;
+  }
 
-    /**
-     * Constructor
-     */
-    @Inject
-    InitRedmine(@PluginName String pluginName, ConsoleUI ui, Section.Factory sections,
-            AllProjectsConfig allProjectsConfig, AllProjectsNameOnInitProvider allProjects, InitFlags flags) {
-        super(pluginName, "Redmine", ui, allProjectsConfig, allProjects);
-        this.pluginName = pluginName;
-        this.sections = sections;
-        this.flags = flags;
+  @Override
+  public void run() throws IOException, ConfigInvalidException {
+    super.run();
+
+    ui.message("\n");
+    ui.header("Redmine connectivity");
+
+    init();
+  }
+
+  private void init() {
+    this.redmine = sections.get(pluginName, null);
+    this.redmineComment = sections.get(COMMENT_LINK_SECTION, pluginName);
+
+
+    do {
+      enterRedmineConnectivity();
+    } while (redmineUrl != null
+        && (isConnectivityRequested(redmineUrl) && !isRedmineConnectSuccessful()));
+
+    if (redmineUrl == null) {
+      return;
     }
 
-    @Override
-    public void run() throws IOException, ConfigInvalidException {
-        super.run();
+    ui.header("Redmine issue-tracking association");
+    redmineComment.string("Redmine issue number regex", "match",
+        "(refs|fixed|close) *#([1-9][0-9]*)");
+    redmineComment.set("html", String.format(
+        "<a href=\"http://myredmine.org/issues/$2\">$1 #$2</a>", redmineUrl));
+    redmineComment.select("Issue number enforced in commit message",
+        "association", ItsAssociationPolicy.SUGGESTED);
+  }
 
-        ui.message("\n");
-        ui.header("Redmine connectivity");
-
+  public void enterRedmineConnectivity() {
+    redmineUrl = redmine.string("Redmine URL (empty to skip)", "url", null);
+    if (redmineUrl != null) {
+      redmineApiKey = redmine.string("Redmine api_key", "api_key", "");
     }
+  }
 
+  private boolean isRedmineConnectSuccessful() {
+    ui.message("Checking Redmine connectivity ... ");
+    try {
+      RedmineManager redmineManager =
+          new RedmineManager(redmineUrl, redmineApiKey);
+      redmineManager.getCurrentUser();
+      ui.message("[OK]\n");
+      return true;
+    } catch (RedmineException e) {
+      ui.message("*FAILED* (%s)\n", e.toString());
+      return false;
+    }
+  }
 }

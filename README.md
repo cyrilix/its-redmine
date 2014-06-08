@@ -1,4 +1,1 @@
-its-redmine
-===========
-
-Gerrit plugin to integrate with redmine
+src/main/resources/Documentation/config.md

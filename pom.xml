@@ -29,8 +29,10 @@
 		<Gerrit-PluginName>its-redmine</Gerrit-PluginName>
 		<Gerrit-InitStep>org.cyrilix.gerrit.plugins.redmine.InitRedmine</Gerrit-InitStep>
 		<Gerrit-Module>org.cyrilix.gerrit.plugins.redmine.RedmineModule</Gerrit-Module>
-		<easymockVersion>3.2</easymockVersion>
-		<slf4jVersion>1.6.2</slf4jVersion>
+
+		<junit.version>4.11</junit.version>
+		<easymock.version>3.2</easymock.version>
+		<logback.version>1.1.2</logback.version>
 	</properties>
 
 	<build>
@@ -118,17 +120,27 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4jVersion}</version>
+            <groupId>com.taskadapter</groupId>
+            <artifactId>redmine-java-api</artifactId>
+            <version>1.21</version>
+        </dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.easymock</groupId>
 			<artifactId>easymock</artifactId>
-			<version>${easymockVersion}</version>
+			<version>${easymock.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 </project>
