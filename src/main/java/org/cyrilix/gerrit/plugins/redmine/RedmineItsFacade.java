@@ -49,7 +49,7 @@ public class RedmineItsFacade implements ItsFacade {
 
   private static final int MAX_ATTEMPTS = 3;
   private static final String GERRIT_CONFIG_HOST = "host";
-  private static final String GERRIT_CONFIG_API_KEY = "api_key";
+  private static final String GERRIT_CONFIG_API_KEY = "apiKey";
 
   private RedmineManager redmineManager = null;
 

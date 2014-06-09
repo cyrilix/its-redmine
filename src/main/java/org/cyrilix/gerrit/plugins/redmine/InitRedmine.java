@@ -92,7 +92,7 @@ class InitBugzilla extends InitIts {
   public void enterRedmineConnectivity() {
     redmineUrl = redmine.string("Redmine URL (empty to skip)", "url", null);
     if (redmineUrl != null) {
-      redmineApiKey = redmine.string("Redmine api_key", "api_key", "");
+      redmineApiKey = redmine.string("Redmine api_key", "apiKey", "");
     }
   }
 
