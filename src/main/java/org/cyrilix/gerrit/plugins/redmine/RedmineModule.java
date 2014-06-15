@@ -62,7 +62,7 @@ public class RedmineModule extends AbstractModule {
   @Override
   protected void configure() {
 
-    if (gerritConfig.getString(pluginName, null, "url") != null) {
+    if (gerritConfig.getString(pluginName, null, "host") != null) {
       LOGGER.info("Redmine is configured as ITS");
       bind(ItsFacade.class).toInstance(
           new RedmineItsFacade(pluginName, gerritConfig));

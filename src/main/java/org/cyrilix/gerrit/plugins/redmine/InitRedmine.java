@@ -82,15 +82,15 @@ class InitBugzilla extends InitIts {
 
     ui.header("Redmine issue-tracking association");
     redmineComment.string("Redmine issue number regex", "match",
-        "(refs|fixed|close) *#([1-9][0-9]*)");
+        "#([1-9][0-9]*)");
     redmineComment.set("html", String.format(
-        "<a href=\"http://myredmine.org/issues/$2\">$1 #$2</a>", redmineUrl));
+        "<a href=\"http://localhost:3000/issues/$1\">#$1</a>", redmineUrl));
     redmineComment.select("Issue number enforced in commit message",
         "association", ItsAssociationPolicy.SUGGESTED);
   }
 
   public void enterRedmineConnectivity() {
-    redmineUrl = redmine.string("Redmine URL (empty to skip)", "url", null);
+    redmineUrl = redmine.string("Redmine URL (empty to skip)", "host", null);
     if (redmineUrl != null) {
       redmineApiKey = redmine.string("Redmine api_key", "apiKey", "");
     }
